@@ -1,0 +1,164 @@
+version: "3.9"
+
+networks:
+  kafka-net:
+    name: kafka-net
+    driver: bridge
+
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      JVMFLAGS: "-Djava.security.auth.login.config=/etc/zookeeper/zookeeper_jaas.conf"
+    volumes:
+      - './kafka-configs/zookeeper_jaas.conf:/etc/zookeeper/zookeeper_jaas.conf'
+    networks:
+      - kafka-net
+
+  kafka:
+    container_name: kafka
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      ALLOW_PLAINTEXT_LISTENER: yes
+
+      KAFKA_LISTENERS: CLIENT://:9092,EXTERNAL://:9093
+      KAFKA_ADVERTISED_LISTENERS: CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: CLIENT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT
+
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_jaas.conf"
+    volumes:
+      - './kafka-configs/kafka_server_jaas.conf:/etc/kafka/kafka_jaas.conf'
+    networks:
+      - kafka-net
+    depends_on:
+      - zookeeper
+
+  keycloak:
+    image: jboss/keycloak:latest
+    container_name: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres-keycloak
+      DB_DATABASE: keycloakDB
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      KEYCLOAK_USER: keycloak
+      KEYCLOAK_PASSWORD: keycloak
+      KEYCLOAK_IMPORT: /opt/jboss/keycloak/realm-config/realm-export.json
+      KEYCLOAK_FRONTEND_URL: http://127.0.0.1:8080/auth
+    volumes:
+      - ./keycloak-config:/opt/jboss/keycloak/realm-config
+    ports:
+      - "8080:8080"
+    networks:
+      - kafka-net
+    depends_on:
+      - postgres-keycloak
+
+  postgres-keycloak:
+    image: postgres:15.0
+    container_name: postgres-container-keycloak
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: keycloakDB
+    restart: on-failure
+    networks:
+      - kafka-net
+
+  postgres-backend:
+    image: postgres:15.0
+    container_name: postgres-container-backend
+    ports:
+      - "5433:5433"
+    command: -p 5433
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgresDB
+    restart: on-failure
+    networks:
+      - kafka-net
+
+  postgres-shop1:
+    image: postgres:15.0
+    container_name: postgres-container-shop1
+    ports:
+      - "5434:5434"
+    command: -p 5434
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgresShop1DB
+    restart: on-failure
+    networks:
+      - kafka-net
+
+#  postgres-shop2:
+#    image: postgres:15.0
+#    container_name: postgres-container-shop2
+#    ports:
+#      - "5435:5435"
+#    command: -p 5435
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: postgresShop2DB
+#    restart: on-failure
+#    networks:
+#      - kafka-net
+
+  gateway-service:
+    container_name: gateway-service
+    build: ./gateway_service/
+    ports:
+      - "28888:28888"
+    networks:
+      - kafka-net
+    depends_on:
+      - keycloak
+
+  backend-service:
+    container_name: backend-service
+    build: ./backend_service/
+    ports:
+      - "28889:28889"
+    networks:
+      - kafka-net
+    depends_on:
+      - postgres-backend
+
+  shop1-service:
+    container_name: shop1-service
+    build: ./shop1_service/
+    ports:
+      - "28880:28880"
+    networks:
+      - kafka-net
+    depends_on:
+      - postgres-shop1
+
+#  shop2-service:
+#    container_name: shop2-service
+#    build: ./shop2_service/
+#    ports:
+#      - "28881:28881"
+#    networks:
+#      - kafka-net
+#    depends_on:
+#      - postgres-shop2

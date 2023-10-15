@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New-shop</title>
+
+    <link rel="icon" th:href="@{/icon/flavicon.png}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/css/wrapper.css}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" type="text/css" th:href="@{/font-awesome/css/font-awesome.min.css}">
+</head>
+<body>
+<div class="wrapper">
+    <!-- START PAGE CONTAINER -->
+    <div class="container-fluid">
+        <div lang="en" th:replace="fragments/header :: header"></div>
+        <div class="page-title">
+            <h3>
+                <span class="fa fa-arrow-circle-o-left"></span> Register a new shop
+            </h3>
+        </div>
+        <!-- END PAGE TITLE -->
+        <div class="column">
+            <form th:action="@{/new-shop}" th:object="${shopData}" method="post">
+                <table>
+                    <tr>
+                        <td>Shop service name:</td>
+                        <td><input type="text" th:field="*{serviceName}"></td>
+                        <td th:if="${#fields.hasErrors('serviceName')}" th:errors="*{serviceName}">Shop service name Error</td>
+                    </tr>
+                    <tr>
+                        <td>Shop name:</td>
+                        <td><input type="text" th:field="*{name}"></td>
+                        <td th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Shop name Error</td>
+                    </tr>
+                    <tr>
+                        <td>Shop URL:</td>
+                        <td><input type="text" th:field="*{url}"></td>
+                        <td th:if="${#fields.hasErrors('url')}" th:errors="*{url}">Shop URL Error</td>
+                    </tr>
+
+                </table>
+                <span>Example: http://localhost:28880</span>
+                <br>
+                <br/>
+                <input type="submit" class="btn btn-primary" value="Create"/>
+            </form>
+
+        </div>
+        <!-- END PAGE CONTENT -->
+        <!-- END PAGE CONTAINER -->
+    </div>
+    <div lang="en" th:replace="fragments/footer :: footer"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalogue</title>
+
+    <link rel="icon" th:href="@{/icon/flavicon.png}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/css/wrapper.css}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" type="text/css" th:href="@{/font-awesome/css/font-awesome.min.css}">
+    <style>
+        table {
+            width: 100%; /* Ширина таблицы */
+            height: 100%;
+            border-collapse: collapse; /* Убираем двойные линии */
+            text-align: justify;
+        }
+
+        td, th {
+            padding: 5px; /* Поля в ячейках */
+            border: 1px solid #333; /* Параметры рамки */
+            empty-cells: hide;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f0f0f0; /* Зебра */
+        }</style>
+</head>
+<body>
+<div class="wrapper">
+    <div lang="en" th:replace="fragments/header :: header"></div>
+    <div class="container-fluid">
+        <!-- PAGE TITLE -->
+        <div class="page-title">
+            <h3>
+                <span class="fa fa-arrow-circle-o-left"></span> Catalogue
+            </h3>
+        </div>
+        <!-- END PAGE TITLE -->
+        <div class="column">
+            <form th:action="@{/catalogue}" th:object="${productPricingWrapper}" method="post">
+                <table th:if="${not #lists.isEmpty(catalogueFromStorage.getProducts())}">
+                    <td>
+                        <table style="float: left">
+                            <tr>
+                                <th> Product name</th>
+                                <th> Description</th>
+                                <th> Category</th>
+                                <th> Amount</th>
+                                <th> Price from storage</th>
+                            </tr>
+                            <tr th:each="product: ${catalogueFromStorage.products}">
+                                <td th:text="${product.name}">product name</td>
+                                <td th:text="${product.description}">description</td>
+                                <td th:text="${product.category.name}">category</td>
+                                <td th:text="${product.amount}">amount</td>
+                                <td th:text="${product.price}">price</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table th:if="${not #lists.isEmpty(productPricingWrapper.pricingDtoList)}">
+                            <tr>
+                                <th> Price from shop</th>
+                            </tr>
+                            <tr th:each="pricing, itemStat : ${productPricingWrapper.pricingDtoList}">
+                                <td><input th:name="|pricingDtoList[${itemStat.index}].price|"
+                                           th:value="${pricing.price}"/></td>
+                                <td style="display:none"><input
+                                        th:name="|pricingDtoList[${itemStat.index}].productServiceName|"
+                                        th:value="${pricing.productServiceName}"/></td>
+                            </tr>
+                        </table>
+                    </td>
+                </table>
+                <br>
+                <div>
+                    <button th:if="${not #lists.isEmpty(catalogueFromStorage.getProducts())}"
+                            class="btn btn-primary"><a style="color: white;text-decoration: none"
+                                                       th:href="@{/edit-catalogue}">Edit catalogue</a>
+                    </button>
+                </div>
+                <div>
+                    <p><span th:text="${message}"></span>
+                        <span th:if="${message} != null" th:text="${#dates.createNow()}"></span>
+                    </p>
+                    <br>
+                    <button th:if="${not #lists.isEmpty(catalogueFromStorage.getProducts())}" type="submit"
+                            class="btn btn-primary">Submit
+                    </button>
+                </div>
+            </form>
+            <div th:if="${#lists.isEmpty(catalogueFromStorage.products)}">
+                <h4>No storage data found</h4>
+                <br>
+                <div>
+                    <button class="btn btn-primary"><a style="color: white;text-decoration: none"
+                                                       th:href="@{/new-catalogue}">Create new catalogue</a></button>
+                </div>
+                <br>
+            </div>
+            <div th:if="${#lists.isEmpty(productPricingWrapper.pricingDtoList)}">
+                <h4>No shop data found</h4>
+            </div>
+        </div>
+    </div>
+    <div lang="en" th:replace="fragments/footer :: footer"></div>
+</div>
+</body>
+</html>

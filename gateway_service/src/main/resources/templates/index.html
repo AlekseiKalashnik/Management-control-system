@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+
+    <link rel="icon" th:href="@{/icon/flavicon.png}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/css/wrapper.css}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" type="text/css" th:href="@{/font-awesome/css/font-awesome.min.css}">
+</head>
+<body>
+<div class="wrapper">
+    <div lang="en" th:replace="fragments/header :: header"></div>
+    <h1 class="text-center">Welcome!</h1>
+    <h4 class="text-center">This is a multi-store management system with a web interface for administrators and
+        managers</h4>
+    <br>
+    <div sec:authorize="!isAuthenticated()">
+        Anonymous section
+        <div>
+            <button class="btn btn-primary"><a style="color: white;text-decoration: none" th:href="@{/before-we-start}">Login</a></button>
+        </div>
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMINISTRATOR'')')}">
+        Admin section
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}">
+        Manager section
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
+        User section
+    </div>
+    <br>
+    <br>
+    <br>
+    <div lang="en" th:replace="fragments/footer :: footer"></div>
+</div>
+</body>
+</html>

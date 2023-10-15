@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Shops</title>
+
+    <link rel="icon" th:href="@{/icon/flavicon.png}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/css/wrapper.css}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" type="text/css" th:href="@{/font-awesome/css/font-awesome.min.css}">
+    <style>
+        table {
+            width: 100%; /* Ширина таблицы */
+            border-collapse: collapse; /* Убираем двойные линии */
+            text-align: justify;
+        }
+
+        td, th {
+            padding: 5px; /* Поля в ячейках */
+            border: 1px solid #333; /* Параметры рамки */
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f0f0f0; /* Зебра */
+        }</style>
+</head>
+<body>
+<div class="wrapper">
+    <div lang="en" th:replace="fragments/header :: header"></div>
+    <div class="container-fluid">
+        <!-- PAGE TITLE -->
+        <div class="page-title">
+            <h3>
+                <span class="fa fa-arrow-circle-o-left"></span> Shops
+            </h3>
+        </div>
+        <!-- END PAGE TITLE -->
+        <div class="column">
+
+            <p><span style="font-size: 22px !important"> List of shops </span></p>
+            <table th:if="${not #lists.isEmpty(shopDtoList)}">
+                <tr>
+                    <th> Service name</th>
+                    <th> Name</th>
+                    <th> URL</th>
+                    <th> Balance</th>
+                    <th></th>
+                </tr>
+                <tr th:each="shop: ${shopDtoList}">
+                    <td th:text="${shop.serviceName}">shop service name</td>
+                    <td th:text="${shop.name}">shop name</td>
+                    <td th:text="${shop.url}">shop URL</td>
+                    <td th:text="${shop.balance}">shop balance</td>
+                    <td>
+                        <button class="btn btn-primary"><a style="color: white;text-decoration: none"
+                                                           th:href="@{|/edit-shop/${shop.serviceName}|}">Edit shop</a>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+            <p><span th:if="${not #lists.isEmpty(shopDtoList)}">Total balance: </span><span
+                    th:text="${totalBalance}"></span></p>
+            <div th:if="${#lists.isEmpty(shopDtoList)}">
+                <h4>No data found</h4>
+            </div>
+            <div>
+                <button class="btn btn-primary"><a style="color: white;text-decoration: none" th:href="@{/new-shop}">Create
+                    new shop</a></button>
+            </div>
+        </div>
+    </div>
+    <div lang="en" th:replace="fragments/footer :: footer"></div>
+</div>
+</body>
+</html>

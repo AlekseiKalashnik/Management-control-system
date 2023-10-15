@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New-catalogue</title>
+
+    <link rel="icon" th:href="@{/icon/flavicon.png}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/css/wrapper.css}">
+    <link th:rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" type="text/css" th:href="@{/font-awesome/css/font-awesome.min.css}">
+    <style>
+        table {
+            width: 100%; /* Ширина таблицы */
+            border-collapse: collapse; /* Убираем двойные линии */
+            text-align: justify;
+        }
+
+        td, th {
+            padding: 5px; /* Поля в ячейках */
+            border: 1px solid #333; /* Параметры рамки */
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f0f0f0; /* Зебра */
+        }</style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- START PAGE CONTAINER -->
+    <div class="container-fluid">
+        <div lang="en" th:replace="fragments/header :: header"></div>
+        <div class="page-title">
+            <h3>
+                <span class="fa fa-arrow-circle-o-left"></span> Create a new catalogue
+            </h3>
+        </div>
+        <!-- END PAGE TITLE -->
+        <div class="column">
+            <form th:action="@{/new-catalogue}" th:object="${catalogueDto}" method="post">
+                <table th:if="${not #lists.isEmpty(productWrapper.productDtoList)}">
+                    <tr>
+                        <th> Product name</th>
+                        <th> Description</th>
+                        <th> Category</th>
+                        <th> Amount</th>
+                        <th> Price from storage</th>
+                        <th>Add to catalogue</th>
+                    </tr>
+                    <tr th:each="product: ${productWrapper.productDtoList}">
+                        <td th:text="${product.name}">product name</td>
+                        <td th:text="${product.description}">description</td>
+                        <td th:text="${product.category.name}">category</td>
+                        <td th:text="${product.amount}">amount</td>
+                        <td th:text="${product.price}">price</td>
+                        <td><input type="checkbox" name="productServiceNames" th:value="${product.serviceName}"></td>
+                    </tr>
+                </table>
+                <br/>
+                <div th:if="${#lists.isEmpty(productWrapper.productDtoList)}"><h4>No storage data found</h4></div>
+                <div>
+                    <input th:if="${not #lists.isEmpty(productWrapper.productDtoList)}"
+                           type="submit"
+                           class="btn btn-primary" value="Create"/>
+                </div>
+            </form>
+
+        </div>
+        <!-- END PAGE CONTENT -->
+        <!-- END PAGE CONTAINER -->
+    </div>
+    <div lang="en" th:replace="fragments/footer :: footer"></div>
+</div>
+</body>
+</html>
